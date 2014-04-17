@@ -575,5 +575,32 @@ describe("Basic functional programming facilities", function()
       assert.are.same({1,2,3,4,100,1}, functional.take(6, functional.cycle(1,2,3,4,100)))
     end)
   end)
+
+  describe("has_function facility", function() 
+    it("number does not have fritto function", function() 
+      assert.is_false(functional.has_function(4, 'fritto'))
+      assert.is_false(functional.has_function(4.5, 'fritto'))
+      assert.is_false(functional.has_function({}, 'fritto'))
+      assert.is_false(functional.has_function('fritto', 'fritto'))
+    end)
+    it("only custom metatables contain functions", function() 
+      assert.is_false(functional.has_function(4, '__eq'))
+      assert.is_false(functional.has_function(4.5, '__add'))
+      assert.is_false(functional.has_function('str', '__mul'))
+      local t = {['a'] = 'a'}
+      local p = {['f'] = function() end}
+      
+      assert.is_false(functional.has_function(t, 'a'))
+      assert.is_false(functional.has_function(p, 'f'))
+        
+      setmetatable(t, p)
+      setmetatable(p, t)
+      
+      assert.is_true(functional.has_function(t, 'f'))
+      assert.is_false(functional.has_function(t, 'a'))
+      assert.is_false(functional.has_function(p, 'f'))
+      assert.is_false(functional.has_function(p, 'a'))
+    end)
+  end)
   
 end)

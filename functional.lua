@@ -149,11 +149,11 @@ local function zip_with(f, ...)
   
   for _, tab in pairs(input_tables) do
     -- no check for sizes, because it'd require traversing whole table each time
-	for k, _ in pairs(tab) do
+  	for k, _ in pairs(tab) do
       if not keys[k] then
   	    output_tables[k] = f(map(input_tables, function(t) return t[k] end))
+	    end
 	  end
-	end
   end
 
   return output_tables
@@ -349,6 +349,22 @@ local function times(n, p)
   return take(n, cycle(p))
 end
 
+-- returns true if metatable of a given variable contains method with given name
+local function has_function(var, name)
+  assert(type(name) == 'string', 'function name must be a string')
+  return (getmetatable(var) and (type(getmetatable(var)[name]) == 'function')) or false
+end
+
+-- checks if given variables have the same type
+local function are_same_type(var1, var2)
+  return type(var1) == type(var2) and getmetatable(var1) == getmetatable(var2)
+end
+
+-- deep copy of a table
+local function deep_copy(tab)
+  return map(tab, function(val) if type(val) == 'table' then return copy(tab) else return val end end)
+end
+
 local functional = {
   fold = fold,
   map = map,
@@ -387,7 +403,10 @@ local functional = {
   drop = drop,
   range = range,
   is_sequence = is_sequence,
-  cycle = cycle
+  cycle = cycle,
+  has_function = has_function,
+  are_same_type = are_same_type,
+  deep_copy = deep_copy
 }
 
 return functional
