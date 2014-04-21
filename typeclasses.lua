@@ -66,7 +66,7 @@ Foldable.preconditions = preconditions(Traversable)
 -- TwoWayFoldable typeclass
 local TwoWayFoldable = {}
 TwoWayFoldable.foldl = function(tab, f, acc) return tab:fold(f, acc) end
-TwoWayFoldable.foldr = function(tab, f, acc) return tab:revert:fold(f, acc) end
+TwoWayFoldable.foldr = function(tab, f, acc) return tab:revert():fold(f, acc) end
 TwoWayFoldable.preconditions = preconditions(Foldable, Reversable)
 
 -- Comparable typeclass
@@ -110,3 +110,15 @@ end
 
 local Mixable = {}
 Mixable.mixin = mixin
+
+local Createable = {}
+Createable.create = function() end
+
+Typeclass = {}
+Typeclass.Mixable = Mixable
+Typeclass.Createable = Createable
+
+return {
+  is_of = is_of_typeclass,
+  Typeclass = Typeclass
+  }

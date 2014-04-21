@@ -1,5 +1,3 @@
---local k,l,_=pcall(require,\"luarocks.loader\") _=k and l.add_context(\"busted\",\"1.10.0-1\")
-
 describe("Basic functional programming facilities", function()
   local functional
   
@@ -8,6 +6,7 @@ describe("Basic functional programming facilities", function()
   end)
 
   teardown(function()
+    functional = nil
   end)
   
   describe("Map facility", function() 
