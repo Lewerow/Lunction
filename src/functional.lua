@@ -1,10 +1,16 @@
-
 -- Functional programming facilities
--- Should be moved to a different module, when possible
+-- @author Tomasz Lewowski
+-- @release 0.1
 
+--- Accumulate value of a function during container traversal
 -- Accumulates value using function f on previous value of accumulator and current value.
 -- f shall be associative and commutative, as order of execution is undefined in case of associative tables
 -- in case of arrays it is linear
+-- Also known as: accumulate (C++), reduce (JavaScript, Python), inject (JavaScript)
+-- @param tab Container that will be traversed
+-- @param f Function to be applied to each element of tab. Accumulator is passed as the first argument, current value as the second and current key as the third.
+-- @param acc Accumulator, changed after each call
+-- @return Final value of acc, after traversing entire table
 local function fold(tab, f, acc)
   assert(type(tab) == 'table', "fold can be called only on tables")
   for k, v in pairs(tab) do
@@ -13,9 +19,12 @@ local function fold(tab, f, acc)
   return acc
 end
 
--- Returns table made by evaluating func on each element of cont
-local function map(tab, func)
-  return fold(tab, function(acc, val, key) acc[key] = func(val, key); return acc end, {})
+-- Transforms values in a table by applying given function to each of them. Does not modify the original table.
+-- @param tab Container that will be traversed
+-- @param f Function applied to each element. First argument is value of the element, second argument is the key.
+-- @returns New table with preserved keys and transformed values
+local function map(tab, f)
+  return fold(tab, function(acc, val, key) acc[key] = f(val, key); return acc end, {})
 end
 
 -- returns two values: first is a table containing elements satisfying predicate, second is a table containing elements not satisfying predicate
