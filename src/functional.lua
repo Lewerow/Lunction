@@ -365,6 +365,13 @@ local function deep_copy(tab)
   return map(tab, function(val) if type(val) == 'table' then return copy(tab) else return val end end)
 end
 
+-- bind (partial application)
+-- memoize
+-- once
+-- after
+-- before
+-- catch_value
+
 local functional = {
   fold = fold,
   map = map,
