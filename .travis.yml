@@ -18,7 +18,7 @@ before_install:
   - sudo luarocks install busted --server=https://luarocks.org/modules/olivine-labs/busted
 
 script: "busted ."
-  
+ 
 notifications:
   email:
     on_success: change
