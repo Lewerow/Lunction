@@ -602,4 +602,77 @@ describe("Basic functional programming facilities", function()
     end)
   end)
   
+  describe("placeholder facility", function()
+    it("different placeholders are unique", function()
+	  assert.are_not.equals(functional.placeholder[1], functional.placeholder[2])
+	  assert.are_not.equals(functional.placeholder[7], functional.placeholder[5])
+	  assert.are_not.equals(functional.placeholder[1], functional.placeholder[20])
+	  assert.are_not.equals(functional.placeholder[1], {index = 1})
+	  assert.are.same(functional.placeholder[1], {index = 1})
+	end)
+	
+    it("same placeholder is equivalent", function()
+	  assert.are.equals(functional.placeholder[1], functional.placeholder[1])
+	  assert.are.equals(functional.placeholder[3], functional.placeholder[3])
+	  assert.are.equals(functional.placeholder[666], functional.placeholder[666])
+	end)
+	
+	it("Only placeholders are treated as ones", function()
+	  assert.is_true(functional.is_placeholder(functional.placeholder[1]))
+	  assert.is_true(functional.is_placeholder(functional.placeholder[100]))
+	  assert.is_true(functional.is_placeholder(functional.placeholder[50]))
+	  
+	  assert.is_false(functional.is_placeholder(2))
+	  assert.is_false(functional.is_placeholder("XX"))
+	  assert.is_false(functional.is_placeholder({index = 1}))
+	end)
+  end)
+
+  describe("bind/partial facility", function()
+    it("can be used as flipall", function()
+	  local f = function(a,b,c) return a + 2*b + c end
+	  local t = functional.bind(f, functional.placeholder[2], functional.placeholder[1], functional.placeholder[3])
+	  
+	  assert.are.equals(t(1,2,3), 7)
+	end)
+    
+	it("same argument may be used multiple times", function()
+	  local f = function(a,b,c) return a + 2*b + c end
+	  local t = functional.bind(f, functional.placeholder[2], functional.placeholder[2], functional.placeholder[3])
+	  
+	  assert.are.equals(t(1,2,3), 9)
+	end)
+    
+	it("constant values may be used ", function()
+	  local f = function(a,b,c) return 3*a + 2*b + c end
+	  local t = functional.bind(f, functional.placeholder[2], 100, functional.placeholder[1])
+	  assert.are.equals(t(1,3), 210)
+	end)
+	
+	it("any combination of above is ok", function()
+	  local f = function(a, b, c, d, e) return a .. b .. c .. d .. e end
+	  local t = functional.bind(f, functional.placeholder[2], "ala", "kot", functional.placeholder[2], functional.placeholder[6])
+	  
+	  assert.are.equals(f("jeden", "ala", "kot", "jeden", "jest"), t(1, "jeden", 2, 5.2, "whatever", "jest"))
+	end)
+	
+	--[[it("works with nils", function()
+	  local f = function(a, b, c) return a .. b .. c end
+	  local t = functional.bind(f, functional.placeholder[2], "kot", "ala")
+	  
+	  assert.are.equals(f("jeden", "kot", "ala"), t(nil, "jeden", nil, nil))
+	end)--]]
+  end)
+  
+  describe("type facilities", function()
+    it("is_integer works correctly", function()
+	  assert.is_true(functional.types.is_integer(2))
+	  assert.is_true(functional.types.is_integer(20))
+	  assert.is_true(functional.types.is_integer(-12))
+	  assert.is_false(functional.types.is_integer(2.2))
+	  assert.is_false(functional.types.is_integer({}))
+	  assert.is_false(functional.types.is_integer(function()end))
+	  assert.is_false(functional.types.is_integer("string"))
+	end)
+  end)
 end)

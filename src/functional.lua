@@ -213,7 +213,7 @@ local function extract_args(n, args)
 end
 
 -- Changes order of arguments to given in the sequence
--- second argument is a sequence of integers indicating which argument shall go in the place
+-- second argument is a sequence of integers indicating in which place shall the argument go
 local function flipall(f, seq)
   assert(is_sequence(seq), "Argument order must be a sequence")
   assert(type(f) == 'function', "Only function arguments may be flipped")
@@ -374,7 +374,43 @@ local function deep_copy(tab)
   return map(tab, function(val) if type(val) == 'table' then return copy(tab) else return val end end)
 end
 
--- bind (partial application)
+local function is_integer(x)
+  return type(x) == "number" and x % 1 == 0
+end
+
+local placeholder_metatable = {
+  __index = function(t, k)
+      assert(type(k) == "number" and k > 0 and (math.floor(k) == k), "Only positive integers may be placeholder indices")
+      t[k] = {index = k}
+	  return t[k]
+  end
+}
+local placeholder = {
+}
+setmetatable(placeholder, placeholder_metatable)
+
+local function is_placeholder(x)
+  return contains(placeholder, x)
+end
+
+local function bind(f, ...)
+  local args = {...}
+  local per_placeholder = partition(args, is_placeholder)
+  local result_arg_count = fold(per_placeholder[1], function(maximum, current) return (current > maximum and current) or maximum end, 0)
+  
+  return curry(function(...) 
+    local call_arguments = {...}
+	local arguments = map(args, function(v)
+	  if is_placeholder(v) then
+	    return call_arguments[v.index]
+	  else
+	    return v
+      end
+	end)
+    return f(extract_args(#arguments, arguments)) 
+  end, result_arg_count)
+end
+
 -- memoize
 -- once
 -- after
@@ -422,7 +458,14 @@ local functional = {
   cycle = cycle,
   has_function = has_function,
   are_same_type = are_same_type,
-  deep_copy = deep_copy
+  deep_copy = deep_copy,
+  placeholder = placeholder,
+  bind = bind,
+  partial = bind,
+  is_placeholder = is_placeholder,
+  types = {
+    is_integer = is_integer
+  }
 }
 
 return functional
