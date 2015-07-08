@@ -411,7 +411,24 @@ local function bind(f, ...)
   end, result_arg_count)
 end
 
--- memoize
+local function memoize(f, hash)
+  if type(hash) ~= "function" then
+    hash = function(a) return a end
+  end
+  
+  local cache = {}
+  return function (...)
+    local address = hash(...)
+    local result = cache[address]
+    if result == nil then
+      result = f(...)
+	  cache[address] = result
+	end
+	
+	return result
+  end
+end
+
 -- once
 -- after
 -- before
@@ -463,6 +480,7 @@ local functional = {
   bind = bind,
   partial = bind,
   is_placeholder = is_placeholder,
+  memoize = memoize,
   types = {
     is_integer = is_integer
   }

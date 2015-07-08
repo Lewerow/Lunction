@@ -664,6 +664,22 @@ describe("Basic functional programming facilities", function()
 	end)--]]
   end)
   
+  describe("memoize facility", function()
+    it("does not call external more than required", function()
+      local f = spy.new(function() return 1 end)	  
+	  local g = function(a) return f(a) end
+	  
+	  local mem = functional.memoize(g, function(a) return a end)
+      assert.are.equals(mem(20), 1)
+      assert.are.equals(mem(20), 1)
+      assert.are.equals(mem(3), 1)
+	  
+	  assert.spy(f).was.called(2)
+	  assert.spy(f).was.called_with(20)
+	  assert.spy(f).was.called_with(3)
+	end)
+  end)
+  
   describe("type facilities", function()
     it("is_integer works correctly", function()
 	  assert.is_true(functional.types.is_integer(2))
